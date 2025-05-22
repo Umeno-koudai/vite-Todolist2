@@ -1,0 +1,44 @@
+# .circleci/config.yml
+
+version: 2.1 # CircleCIの設定ファイルのバージョン
+
+jobs:
+  build_and_test: # ジョブの名前
+    docker:
+      - image: cimg/node:18.15.0 # 使用するDockerイメージ。Node.js LTSバージョンを推奨。
+        # ToDo: もしブラウザ環境でのテスト（JSDOMなど）が必要な場合、
+        # より大きなイメージ (e.g., cimg/node:18.15.0-browsers) を検討
+    
+    steps:
+      - checkout # GitHubリポジトリのコードをチェックアウト
+
+      - restore_cache: # キャッシュを復元（node_modulesなど）
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }} # package-lock.jsonのハッシュ値でキャッシュキーを生成
+            - v1-dependencies- # フォールバックキー
+
+      - run: # 依存関係のインストール
+          name: Install Dependencies
+          command: npm install # または yarn install
+
+      - save_cache: # キャッシュを保存
+          paths:
+            - node_modules # node_modulesディレクトリをキャッシュ
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+
+      - run: # テストの実行
+          name: Run Tests
+          command: npm test # Jestなどが設定されている場合、npm test で実行されます
+
+      - run: # ビルドの実行
+          name: Build Application
+          command: npm run build # Reactプロジェクトのビルドコマンド。通常はこれでdist/buildフォルダが作成される
+
+workflows:
+  version: 2
+  build_test_deploy: # ワークフローの名前
+    jobs:
+      - build_and_test # 上記で定義したジョブを実行
+      # - deploy: # デプロイジョブを追加する場合はここに記述
+      #     requires:
+      #       - build_and_test # build_and_testが成功した場合にのみ実行
