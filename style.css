@@ -4,14 +4,6 @@ body{
     align-items: flex-start;
 }
 
-.app{
-
-}
-
-#input-area{
-
-}
-
 #task-list li{
     display: flex;
     justify-content: space-between;

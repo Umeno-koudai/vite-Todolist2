@@ -8,7 +8,6 @@ let todoList = document.getElementById('task-list') as HTMLUListElement;
 let addButton = document.getElementById('add-button') as HTMLButtonElement;
 
 let todos: Todo[] = [];
-let currentId = 0;
 
 function reloadTodo(): void{
 
